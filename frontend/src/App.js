@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
-const APIURL = '/api/todos';
+const APIURL = '/api/todos/';
 
 class TodoList extends Component {
   constructor(props){
@@ -60,10 +60,32 @@ class TodoList extends Component {
     .then(todo => this.setState({todos: [...this.state.todos, todo]}));
   }
 
+  deleteTodo(id){
+    fetch(APIURL + id, {
+      method: 'delete',
+    })
+    .then(response => {
+      if(!response.ok) {
+        if(response.status >= 400 && response.status < 500){
+          return response.json().then(data => {
+            let err = {errorMessage: data.message};
+            throw err;
+          })
+        } else {
+          let err = {errorMessage: 'Server not responding'};
+          throw err;
+        }
+      }
+    })
+    .then(() => {
+      this.setState({todos: this.state.todos.filter(todo => todo._id !== id)})
+    })
+  }
+
   render() {
     let {todos} = this.state;
     let todoList = todos.map(todo => (
-      <TodoItem key={todo._id} {...todo} />
+      <TodoItem key={todo._id} {...todo} onDelete={this.deleteTodo.bind(this, todo._id)}/>
     ))
     return (
       <div className="todoList">
@@ -106,8 +128,8 @@ class TodoForm extends Component{
   }
 }
 
-const TodoItem = ({name, completed}) => (
-  <li style={{textDecoration: completed ? "line-through" : "none"}}>{name}<span>X</span></li>
+const TodoItem = ({name, completed, onDelete}) => (
+  <li style={{textDecoration: completed ? "line-through" : "none"}}>{name}<span onClick={onDelete}> X </span></li>
 )
 
 class App extends Component {
