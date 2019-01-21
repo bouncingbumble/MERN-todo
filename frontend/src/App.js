@@ -35,14 +35,16 @@ class TodoList extends Component {
 
   render() {
     let {todos} = this.state;
-    let todoList = todos.map((todo, i) => (
-      <TodoItem key={todo._id} name={todo.name} completed={todo.completed} />
+    let todoList = todos.map(todo => (
+      <TodoItem key={todo._id} {...todo} />
     ))
     return (
       <div className="todoList">
         <h2>todolist</h2>
         <TodoForm/>
+        <ul>
         {todoList}
+        </ul>
       </div>
     );
   }
@@ -58,41 +60,20 @@ class TodoForm extends Component{
   }
 }
 
-class TodoItem extends Component{
-  render(){
-    let {name, completed} = this.props;
-    return (
-      <div className="todoItem">
-        <h2 className={completed ? "checked" : "unchecked"}>{name}<span>X</span></h2>
-      </div>
-    )
-  }
-}
+const TodoItem = ({name, completed}) => (
+  <li style={{textDecoration: completed ? "line-through" : "none"}}>{name}<span>X</span></li>
+)
 
 class App extends Component {
   render() {
     return (
       <div className="App">
       <h1>This is the todo app</h1>
-      <TodoList todos={TODOS}/>
+      <TodoList/>
       </div>
     );
   }
 }
 
-const TODOS = [
-  { 
-    name: 'Walk the dog',
-    completed: false
-  },
-  { 
-    name: 'Walk the dog',
-    completed: true
-  },
-  { 
-    name: 'Walk the dog',
-    completed: false
-  }
-]
 
 export default App;
