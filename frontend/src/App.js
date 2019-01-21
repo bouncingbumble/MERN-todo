@@ -82,10 +82,42 @@ class TodoList extends Component {
     })
   }
 
+  updateTodo(todo){
+    fetch(APIURL + todo._id, {
+      method: 'put',
+      headers: new Headers({
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify({completed: !todo.completed})
+    })
+    .then(response => {
+      if(!response.ok) {
+        if(response.status >= 400 && response.status < 500){
+          return response.json().then(data => {
+            let err = {errorMessage: data.message};
+            throw err;
+          })
+        } else {
+          let err = {errorMessage: 'Server not responding'};
+          throw err;
+        }
+      }
+      return response.json();
+    })
+    .then(updatedTodo => {
+      const todos = this.state.todos.map(t => 
+        (t._id === updatedTodo._id)
+        ? {...t, completed: !t.completed}
+        : t
+      )
+      this.setState({todos: todos});
+    });
+  }
+
   render() {
     let {todos} = this.state;
     let todoList = todos.map(todo => (
-      <TodoItem key={todo._id} {...todo} onDelete={this.deleteTodo.bind(this, todo._id)}/>
+      <TodoItem key={todo._id} {...todo} onDelete={this.deleteTodo.bind(this, todo._id)} onToggle={this.updateTodo.bind(this, todo)}/>
     ))
     return (
       <div className="todoList">
@@ -128,8 +160,8 @@ class TodoForm extends Component{
   }
 }
 
-const TodoItem = ({name, completed, onDelete}) => (
-  <li style={{textDecoration: completed ? "line-through" : "none"}}>{name}<span onClick={onDelete}> X </span></li>
+const TodoItem = ({name, completed, onDelete, onToggle}) => (
+  <li><span style={{textDecoration: completed ? "line-through" : "none"}} onClick={onToggle}>{name}</span><span onClick={onDelete}> X </span></li>
 )
 
 class App extends Component {
