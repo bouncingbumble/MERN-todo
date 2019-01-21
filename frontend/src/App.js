@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
 import * as api from './api';
-const APIURL = '/api/todos/';
 
 class TodoList extends Component {
   constructor(props){
